@@ -7,11 +7,16 @@
 #include <mcp_can.h>
 #include <SPI.h>
 
+//-----Begin Pressure Sensor-----Ask Brendan: Is this Fuel pressure or Oil Pressure?
+#define PRESSURE_SENSOR_PORT 0
+double fuelPressure=0;
+//-----End Pressure Sensor-----
+
 //-----Begin Accelerometer-----
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
-double xaccel=0;
-double yaccel=0;
-double zaccel=0;
+double xAccel=0;
+double yAccel=0;
+double zAccel=0;
 double G=78.5; //This is 9.8m/s^2*8G for max out
 //-----End Accelerometer-----
 
@@ -43,6 +48,7 @@ double coolantTemp=0;
 void setup()
 {
   Serial.begin(9600);
+  
   //-----Begin Accelerometer-----
   if (! mma.begin()) {
     Serial.println("Couldnt start");
@@ -70,18 +76,23 @@ void setup()
 void loop()
 {
   String outString=""; //This will store the fixed-length values to be sent to LabView
+  //-----Begin Pressure Sensor-----
+  fuelPressure=analogRead(PRESSURE_SENSOR_PORT);
+  fuelPressure=((fuelPressure*0.12)-11.83)/100.0; //This turns the voltage reading to PSI
+  //-----End Pressure Sensor-----
+  
   //-----Begin Accelerometer-----
   sensors_event_t event; 
   mma.getEvent(&event);
   
-  xaccel=event.acceleration.x;
-  xaccel=(xaccel+G)/(2*G);
+  xAccel=event.acceleration.x;
+  xAccel=(xAccel+G)/(2*G);
 
-  yaccel=event.acceleration.y;
-  yaccel=(yaccel+G)/(2*G);
+  yAccel=event.acceleration.y;
+  yAccel=(yAccel+G)/(2*G);
   
-  zaccel=event.acceleration.z;
-  zaccel=(zaccel+G)/(2*G);
+  zAccel=event.acceleration.z;
+  zAccel=(zAccel+G)/(2*G);
   //-----End Accelerometer-----
   //-----Begin ECU-----
   if(!digitalRead(CAN0_INT))                         // If CAN0_INT pin is low, read receive buffer
@@ -111,6 +122,6 @@ void loop()
     }
   }
     //-----End ECU-----
-    outString=scaleIt(xaccel)+scaleIt(yaccel)+scaleIt(zaccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
+    outString=scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
     Serial.println(outString);
 }
