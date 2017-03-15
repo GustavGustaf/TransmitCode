@@ -171,5 +171,5 @@ void loop()
   }
     //-----End ECU-----
     outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(fuelPressure)+scaleIt(brakePosition)+scaleIt(steeringAngle)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
-    Serial.println(outString);
+    Serial1.println(outString); //Writes the string to TX1, where the XBee will be connected
 }
