@@ -7,6 +7,18 @@
 #include <mcp_can.h>
 #include <SPI.h>
 
+//-----Begin Suspension Sensor-----
+#define SUSPENSION_SENSOR_1_PORT 1
+#define SUSPENSION_SENSOR_2_PORT 2
+#define SUSPENSION_SENSOR_3_PORT 3
+#define SUSPENSION_SENSOR_4_PORT 4
+
+double suspension1=0;
+double suspension2=0;
+double suspension3=0;
+double suspension4=0;
+//-----End Suspension Sensor-----
+
 //-----Begin Pressure Sensor-----Ask Brendan: Is this Fuel pressure or Oil Pressure?
 #define PRESSURE_SENSOR_PORT 0
 double fuelPressure=0;
@@ -76,6 +88,21 @@ void setup()
 void loop()
 {
   String outString=""; //This will store the fixed-length values to be sent to LabView
+  
+  //-----Begin Suspension Sensor-----
+  suspension1=analogRead(SUSPENSION_SENSOR_1_PORT);
+  suspension1=((((suspension1*0.0028528265)-1.4635)*100)+147)/293.0; //This scales the analog input to distance depressed or expanded in inches with 0 being the middle distance between the max despression and max extension.
+  
+  suspension2=analogRead(SUSPENSION_SENSOR_2_PORT);
+  suspension1=((((suspension2*0.0028528265)-1.4635)*100)+147)/293.0;
+  
+  suspension3=analogRead(SUSPENSION_SENSOR_3_PORT);
+  suspension1=((((suspension3*0.0028528265)-1.4635)*100)+147)/293.0;
+  
+  suspension4=analogRead(SUSPENSION_SENSOR_4_PORT);
+  suspension1=((((suspension4*0.0028528265)-1.4635)*100)+147)/293.0;
+  //-----End Suspension Sensor-----
+  
   //-----Begin Pressure Sensor-----
   fuelPressure=analogRead(PRESSURE_SENSOR_PORT);
   fuelPressure=((fuelPressure*0.12)-11.83)/100.0; //This turns the voltage reading to PSI
@@ -94,6 +121,7 @@ void loop()
   zAccel=event.acceleration.z;
   zAccel=(zAccel+G)/(2*G);
   //-----End Accelerometer-----
+  
   //-----Begin ECU-----
   if(!digitalRead(CAN0_INT))                         // If CAN0_INT pin is low, read receive buffer
   {
@@ -122,6 +150,6 @@ void loop()
     }
   }
     //-----End ECU-----
-    outString=scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
+    outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
     Serial.println(outString);
 }
