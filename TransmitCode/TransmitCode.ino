@@ -8,20 +8,20 @@
 #include <SPI.h>
 
 //-----Begin Brake Position Sensor-----
-#define BRAKE_POSITION_SENSOR_PORT 6
+#define BRAKE_POSITION_SENSOR_PORT A5
 double brakePosition=0;
 //-----Begin Brake Position Sensor-----
 
 //-----Begin Steering Angle Sensor-----
-#define STEERING_ANGLE_SENSOR_PORT 5
+#define STEERING_ANGLE_SENSOR_PORT A6
 double steeringAngle=0;
 //-----End Steering Angle Sensor-----
 
 //-----Begin Suspension Sensor-----
-#define SUSPENSION_SENSOR_1_PORT 1
-#define SUSPENSION_SENSOR_2_PORT 2
-#define SUSPENSION_SENSOR_3_PORT 3
-#define SUSPENSION_SENSOR_4_PORT 4
+#define SUSPENSION_SENSOR_1_PORT A0
+#define SUSPENSION_SENSOR_2_PORT A1
+#define SUSPENSION_SENSOR_3_PORT A2
+#define SUSPENSION_SENSOR_4_PORT A3
 
 double suspension1=0;
 double suspension2=0;
@@ -30,12 +30,12 @@ double suspension4=0;
 //-----End Suspension Sensor-----
 
 //-----Begin Fuel Pressure Sensor-----
-#define PRESSURE_SENSOR_PORT 0
+#define PRESSURE_SENSOR_PORT A4
 double fuelPressure=0;
 //-----End Fuel Pressure Sensor-----
 
 //-----Begin Accelerometer-----
-Adafruit_MMA8451 mma = Adafruit_MMA8451();
+Adafruit_MMA8451 mma = Adafruit_MMA8451(); //The breakout is connected on Pins 20 and 21
 double xAccel=0;
 double yAccel=0;
 double zAccel=0;
@@ -48,8 +48,8 @@ unsigned char len = 0;
 unsigned char rxBuf[8];
 char msgString[128];                        // Array to store serial string
 
-#define CAN0_INT 2                          // Set INT to pin to a digital pin, 2 on the Uno
-MCP_CAN CAN0(10);                           // Set CS to a digital pin, 10 on the Uno
+#define CAN0_INT 2                          // Set INT to pin to a digital pin, 2
+MCP_CAN CAN0(10);                           // Set CS to a digital pin, 10
 
 int scaleIt(double value){ //This function will scale all values to an integer between 100 and 999.
   int scaledValue=(value*899)+100;
