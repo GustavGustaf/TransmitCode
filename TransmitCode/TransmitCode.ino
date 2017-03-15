@@ -7,6 +7,11 @@
 #include <mcp_can.h>
 #include <SPI.h>
 
+//-----Begin Steering Angle Sensor-----
+#define STEERING_ANGLE_SENSOR_PORT 5
+double steeringAngle=0;
+//-----End Steering Angle Sensor-----
+
 //-----Begin Suspension Sensor-----
 #define SUSPENSION_SENSOR_1_PORT 1
 #define SUSPENSION_SENSOR_2_PORT 2
@@ -19,10 +24,10 @@ double suspension3=0;
 double suspension4=0;
 //-----End Suspension Sensor-----
 
-//-----Begin Pressure Sensor-----Ask Brendan: Is this Fuel pressure or Oil Pressure?
+//-----Begin Fuel Pressure Sensor-----
 #define PRESSURE_SENSOR_PORT 0
 double fuelPressure=0;
-//-----End Pressure Sensor-----
+//-----End Fuel Pressure Sensor-----
 
 //-----Begin Accelerometer-----
 Adafruit_MMA8451 mma = Adafruit_MMA8451();
@@ -38,8 +43,8 @@ unsigned char len = 0;
 unsigned char rxBuf[8];
 char msgString[128];                        // Array to store serial string
 
-#define CAN0_INT 2                              // Set INT to pin 2
-MCP_CAN CAN0(10);                               // Set CS to pin 10
+#define CAN0_INT 2                              // Set INT to pin to a digital pin, 2 on the Uno
+MCP_CAN CAN0(10);                               // Set CS to a digital pin, 10 on the Uno
 
 int scaleIt(double value){ //This function will scale all values to an integer between 100 and 999.
   int scaledValue=(value*899)+100;
@@ -88,6 +93,10 @@ void setup()
 void loop()
 {
   String outString=""; //This will store the fixed-length values to be sent to LabView
+  //-----Begin Steering Angle Sensor-----
+  steeringAngle=analogRead(STEERING_ANGLE_SENSOR_PORT);
+  steeringAngle=(((steeringAngle*3.05)-1564.37)+201)/399.0; //This gives the angle in degrees with 0 at 12 o'clock
+  //-----End Steering Angle Sensor-----
   
   //-----Begin Suspension Sensor-----
   suspension1=analogRead(SUSPENSION_SENSOR_1_PORT);
@@ -103,10 +112,10 @@ void loop()
   suspension1=((((suspension4*0.0028528265)-1.4635)*100)+147)/293.0;
   //-----End Suspension Sensor-----
   
-  //-----Begin Pressure Sensor-----
+  //-----Begin Fuel Pressure Sensor-----
   fuelPressure=analogRead(PRESSURE_SENSOR_PORT);
   fuelPressure=((fuelPressure*0.12)-11.83)/100.0; //This turns the voltage reading to PSI
-  //-----End Pressure Sensor-----
+  //-----End Fuel Pressure Sensor-----
   
   //-----Begin Accelerometer-----
   sensors_event_t event; 
@@ -150,6 +159,6 @@ void loop()
     }
   }
     //-----End ECU-----
-    outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
+    outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(fuelPressure)+scaleIt(steeringAngle)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
     Serial.println(outString);
 }
