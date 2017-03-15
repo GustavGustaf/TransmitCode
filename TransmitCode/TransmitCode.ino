@@ -7,6 +7,11 @@
 #include <mcp_can.h>
 #include <SPI.h>
 
+//-----Begin Brake Position Sensor-----
+#define BRAKE_POSITION_SENSOR_PORT 6
+double brakePosition=0;
+//-----Begin Brake Position Sensor-----
+
 //-----Begin Steering Angle Sensor-----
 #define STEERING_ANGLE_SENSOR_PORT 5
 double steeringAngle=0;
@@ -43,8 +48,8 @@ unsigned char len = 0;
 unsigned char rxBuf[8];
 char msgString[128];                        // Array to store serial string
 
-#define CAN0_INT 2                              // Set INT to pin to a digital pin, 2 on the Uno
-MCP_CAN CAN0(10);                               // Set CS to a digital pin, 10 on the Uno
+#define CAN0_INT 2                          // Set INT to pin to a digital pin, 2 on the Uno
+MCP_CAN CAN0(10);                           // Set CS to a digital pin, 10 on the Uno
 
 int scaleIt(double value){ //This function will scale all values to an integer between 100 and 999.
   int scaledValue=(value*899)+100;
@@ -85,7 +90,7 @@ void setup()
   
   CAN0.setMode(MCP_NORMAL);                     // Set operation mode to normal so the MCP2515 sends acks to received data.
 
-  pinMode(CAN0_INT, INPUT);                            // Configuring pin for /INT input
+  pinMode(CAN0_INT, INPUT);                     // Configuring pin for /INT input
   //-----End ECU-----
 
 }
@@ -93,6 +98,12 @@ void setup()
 void loop()
 {
   String outString=""; //This will store the fixed-length values to be sent to LabView
+  
+  //-----Begin Brake Position Sensor-----
+  brakePosition=analogRead(BRAKE_POSITION_SENSOR_PORT);
+  brakePosition=(map(brakePosition, 26, 1023, 0, 100))/100.0; //This gives the amount the brake pedal has been depressed from 0% to 100% depression.
+  //-----End Brake Position Sensor-----
+  
   //-----Begin Steering Angle Sensor-----
   steeringAngle=analogRead(STEERING_ANGLE_SENSOR_PORT);
   steeringAngle=(((steeringAngle*3.05)-1564.37)+201)/399.0; //This gives the angle in degrees with 0 at 12 o'clock
@@ -159,6 +170,6 @@ void loop()
     }
   }
     //-----End ECU-----
-    outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(fuelPressure)+scaleIt(steeringAngle)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
+    outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(fuelPressure)+scaleIt(brakePosition)+scaleIt(steeringAngle)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel)+scaleIt(tps)+scaleIt(coolantTemp)+scaleIt(oilTemp)+scaleIt(mabsp)+scaleIt(frequency2)+scaleIt(rpm)+scaleIt(lambda);
     Serial.println(outString);
 }
