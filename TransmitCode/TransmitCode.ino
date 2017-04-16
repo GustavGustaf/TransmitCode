@@ -7,15 +7,21 @@ int scaleIt(double value){ //This function will scale all values to an integer b
   int scaledValue=(value*899)+100;
   return scaledValue;
 }
+//-----Begin Arduino Uno Receive-----
+const int length1=21; //length of the string sent
+char unoArray[length1]; //String to be received by the Uno
+String unoString="";
+//-----End Arduino Uno Receive-----
 
 //-----Begin Brake Position Sensor-----
 #define BRAKE_POSITION_SENSOR_PORT A5
 double brakePosition=0;
-//-----Begin Brake Position Sensor-----
+//-----End Brake Position Sensor-----
 
 //-----Begin Steering Angle Sensor-----
 #define STEERING_ANGLE_SENSOR_PORT A6
 double steeringAngle=0;
+int scaledSteeringAngle;
 //-----End Steering Angle Sensor-----
 
 //-----Begin Suspension Sensor-----
@@ -46,6 +52,7 @@ double G=78.5; //This is 9.8m/s^2*8G for max out
 void setup()
 {
   Serial.begin(9600);
+  Serial3.begin(9600); //Arduino Uno receiving pins
   
   //-----Begin Accelerometer-----
   if (! mma.begin()) {
@@ -62,7 +69,7 @@ void setup()
 void loop()
 {
   String outString=""; //This will store the fixed-length values to be sent to LabView
-  
+
   //-----Begin Brake Position Sensor-----
   brakePosition=analogRead(BRAKE_POSITION_SENSOR_PORT);
   brakePosition=(map(brakePosition, 26, 1023, 0, 100))/100.0; //This gives the amount the brake pedal has been depressed from 0% to 100% depression.
@@ -70,7 +77,8 @@ void loop()
   
   //-----Begin Steering Angle Sensor-----
   steeringAngle=analogRead(STEERING_ANGLE_SENSOR_PORT);
-  steeringAngle=(((steeringAngle*3.05)-1564.37)+201)/399.0; //This gives the angle in degrees with 0 at 12 o'clock
+  steeringAngle=((steeringAngle*3.51)-1800); //This gives the angle in degrees with 0 at 12 o'clock
+  scaledSteeringAngle=map(steeringAngle,-1800,1800,100,999); //map is used to scale from 100 to 999 instead of scaleIt
   //-----End Steering Angle Sensor-----
   
   //-----Begin Suspension Sensor-----
@@ -106,9 +114,34 @@ void loop()
   zAccel=(zAccel+G)/(2*G);
   //-----End Accelerometer-----
   
-  //-----Begin ECU-----
- 
-  //-----End ECU-----
-    outString=scaleIt(suspension1)+scaleIt(suspension2)+scaleIt(suspension3)+scaleIt(suspension4)+scaleIt(fuelPressure)+scaleIt(brakePosition)+scaleIt(steeringAngle)+scaleIt(xAccel)+scaleIt(yAccel)+scaleIt(zAccel);
-    Serial1.println(outString); //Writes the string to TX1, where the XBee will be connected
+  //-----Begin Arduino Uno Receive-----
+  if (Serial3.available()) {
+    int i=0;
+    delay(25); //allows all serial sent to be received together
+    while(Serial3.available() && i<length1) {
+      unoArray[i++] = Serial3.read();
+    }
+    unoArray[i++]='\0';
+    unoString=unoArray;
+  }
+  //-----End Arduino Uno Receive-----
+  
+//    outString=scaleIt(suspension1);
+//    outString+=scaleIt(suspension2);
+//    outString+=scaleIt(suspension3);
+//    outString+=scaleIt(suspension4);
+//    outString+=scaleIt(fuelPressure);
+//    outString+=scaleIt(brakePosition);
+//    outString+=scaleIt(steeringAngle);
+//    outString+=scaleIt(xAccel);
+//    outString+=scaleIt(yAccel);
+//    outString+=scaleIt(zAccel);
+//    outString=unoString;
+    Serial.print(xAccel);
+    Serial.print(", ");
+    Serial.print(yAccel);
+    Serial.print(", ");
+    Serial.println(zAccel);
+
+    Serial.println();
 }
