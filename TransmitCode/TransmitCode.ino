@@ -10,7 +10,7 @@ int scaleIt(double value){ //This function will scale all values to an integer b
 //-----Begin Arduino Uno Receive-----
 const int length1=21; //length of the string sent
 char unoArray[length1]; //String to be received by the Uno
-String unoString="";
+String unoString="100100100100100100100";
 //-----End Arduino Uno Receive-----
 
 //-----Begin Brake Position Sensor-----
@@ -104,7 +104,7 @@ void loop()
   sensors_event_t event; 
   mma.getEvent(&event);
   
-  xAccel=event.acceleration.x;
+  xAccel=event.acceleration.x; //This is the acceleration between +-(8*9.8)m/s^2
   xAccel=(xAccel+G)/(2*G);
 
   yAccel=event.acceleration.y;
@@ -126,22 +126,17 @@ void loop()
   }
   //-----End Arduino Uno Receive-----
   
-//    outString=scaleIt(suspension1);
-//    outString+=scaleIt(suspension2);
-//    outString+=scaleIt(suspension3);
-//    outString+=scaleIt(suspension4);
-//    outString+=scaleIt(fuelPressure);
-//    outString+=scaleIt(brakePosition);
-//    outString+=scaleIt(steeringAngle);
-//    outString+=scaleIt(xAccel);
-//    outString+=scaleIt(yAccel);
-//    outString+=scaleIt(zAccel);
-//    outString=unoString;
-    Serial.print(xAccel);
-    Serial.print(", ");
-    Serial.print(yAccel);
-    Serial.print(", ");
-    Serial.println(zAccel);
+Serial.print(scaleIt(suspension1));
+Serial.print(scaleIt(suspension2));
+Serial.print(scaleIt(suspension3));
+Serial.print(scaleIt(suspension4));
+Serial.print(scaleIt(fuelPressure));
+Serial.print(scaleIt(brakePosition));
+Serial.print(steeringAngle);
+Serial.print(scaleIt(xAccel));
+Serial.print(scaleIt(yAccel));
+Serial.print(scaleIt(zAccel));
+Serial.print(unoString);
 
     Serial.println();
 }
