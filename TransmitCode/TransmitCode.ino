@@ -5,6 +5,12 @@
 
 int scaleIt(double value){ //This function will scale all values to an integer between 100 and 999.
   int scaledValue=(value*899)+100;
+  if (scaledValue>999){
+    scaledValue=999;
+  }
+  if (scaledValue<100){
+    scaledValue=100;
+  }
   return scaledValue;
 }
 //-----Begin Arduino Uno Receive-----
@@ -132,11 +138,12 @@ Serial.print(scaleIt(suspension3));
 Serial.print(scaleIt(suspension4));
 Serial.print(scaleIt(fuelPressure));
 Serial.print(scaleIt(brakePosition));
-Serial.print(steeringAngle);
+Serial.print(scaledSteeringAngle);
 Serial.print(scaleIt(xAccel));
 Serial.print(scaleIt(yAccel));
 Serial.print(scaleIt(zAccel));
 Serial.print(unoString);
 
     Serial.println();
+
 }
